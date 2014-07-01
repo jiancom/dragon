@@ -1,0 +1,65 @@
+apply plugin: 'java'
+apply plugin: 'eclipse'
+
+description='dragon是一个基于servlet3+spring+jpa标准的新型mvc框架'
+group = 'com.resgain'
+version = new Version(major: 0, minor:1, revision:0)
+
+def springVersion = "3.2.3.RELEASE"
+def springSecurityVersion = "3.1.4.RELEASE"
+def hibernateVersion = "4.2.2.Final"
+
+sourceCompatibility=1.7
+targetCompatibility=1.7
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+    compile("org.slf4j:slf4j-api:1.7.5")
+    compile("ch.qos.logback:logback-classic:1.0.13")
+	compile("com.alibaba:druid:0.2.23")
+	compile("org.apache.velocity:velocity:1.7")
+	compile("cglib:cglib-nodep:3.0")
+	compile("org.mvel:mvel2:2.1.4.Final")
+	compile("org.jsoup:jsoup:1.7.2")
+	compile("org.jodd:jodd-bean:3.4.4")
+	compile("com.alibaba:fastjson:1.1.31")
+	compile("commons-fileupload:commons-fileupload:1.3")
+
+	compile("org.springframework:spring-tx:$springVersion")
+	compile("org.springframework:spring-jdbc:$springVersion")
+	compile("org.springframework:spring-orm:$springVersion")
+	compile("org.springframework:spring-aop:$springVersion")
+	compile("org.springframework:spring-oxm:$springVersion")
+	compile("org.springframework:spring-aspects:$springVersion")
+	compile("org.aspectj:aspectjrt:1.6.11")
+
+	compile("org.springframework.security:spring-security-core:$springSecurityVersion")
+	compile("org.springframework.security:spring-security-web:$springSecurityVersion")
+	compile("org.springframework.security:spring-security-config:$springSecurityVersion")
+
+	compile("org.hibernate:hibernate-core:$hibernateVersion")
+	compile("org.hibernate:hibernate-entitymanager:$hibernateVersion")
+	compile("org.hibernate:hibernate-ehcache:$hibernateVersion")
+	compile("mysql:mysql-connector-java:5.1.24")
+
+    compile 'javax.servlet:javax.servlet-api:3.0.1'
+
+	testCompile "junit:junit:4.11"
+    testCompile "org.springframework:spring-test:$springVersion"
+
+    testRuntime "org.eclipse.jetty:jetty-annotations:9.1.3.v20140225"
+    testRuntime "org.eclipse.jetty:jetty-webapp:9.1.3.v20140225"
+    testRuntime "org.eclipse.jetty:jetty-jsp:9.1.3.v20140225"
+}
+
+class Version {
+    int major, minor = 0, revision = 0
+    String stage
+
+    String toString() {
+        "$major.$minor.$revision${stage ? '.' + stage : ''}"
+    }
+}
