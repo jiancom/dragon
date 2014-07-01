@@ -5,7 +5,7 @@ import net.sf.cglib.proxy.Enhancer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.resgain.dragon.bean.KnowException;
+import com.resgain.dragon.exception.KnowException;
 
 public class ServiceFactory
 {

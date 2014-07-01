@@ -1,4 +1,4 @@
-package com.resgain.dragon.bean;
+package com.resgain.dragon.exception;
 
 public class KnowException extends RuntimeException
 {

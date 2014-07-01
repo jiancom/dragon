@@ -16,6 +16,10 @@ public class ConfigUtil
 
     static {
         try {
+            p.load(ConfigUtil.class.getResourceAsStream("/com/resgain/dragon/resgain.properties"));
+        } catch (Exception e) {
+		}
+        try {
             p.load(ConfigUtil.class.getResourceAsStream("/resgain.properties"));
         } catch (Exception e) {
             logger.warn("resgain框架配置文件[{}]不存在", "resgain.properties");
@@ -33,5 +37,9 @@ public class ConfigUtil
         if(p.containsKey(key))
             return p.getProperty(key);
         return def;
+    }
+
+    public static String getCMSplit(){
+    	return getValue("ClassMethodSplit", "!");
     }
 }

@@ -1,7 +1,6 @@
 package com.resgain.dragon.filter.result;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -12,9 +11,10 @@ import org.apache.velocity.VelocityContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.resgain.dragon.bean.ActionException;
+import com.resgain.dragon.exception.KnowException;
 import com.resgain.dragon.filter.ActionUtil;
 import com.resgain.dragon.iface.IResultProcess;
+import com.resgain.dragon.util.ConfigUtil;
 import com.resgain.dragon.util.ResgainUtil;
 
 /**
@@ -71,8 +71,8 @@ public class Template implements IResultProcess
 		if (tname == null) {
 			if (path.endsWith("/"))
 				tpa = "/index";
-			else if ((path.indexOf('!') > 0))
-				tpa = path.replace('!', '-');
+			else if ((path.indexOf(ConfigUtil.getCMSplit()) > 0))
+				tpa = path.replace(ConfigUtil.getCMSplit(), "-");
 			else
 				tpa = path;
 		} else if (!tname.startsWith("/")) {
@@ -80,8 +80,8 @@ public class Template implements IResultProcess
 		}
 		String f = ResgainUtil.getViewPath() + tpa.replace('/', File.separatorChar) + ".vm";
 		if (!new File(f).exists()) {
-			logger.error("无效的请求，模板文件{}不存在。", f);
-			throw new ActionException("无效的请求！");
+			logger.error("模板文件{}不存在。", f);
+			throw new KnowException("程序中设定的相关资源不存在！");
 		}
 		return f;
 	}
@@ -95,9 +95,9 @@ public class Template implements IResultProcess
 					context.put(entry.getKey(), entry.getValue());
 			}
 			ActionUtil.renderOut(request, response, f, context);
-		} catch (IOException e) {
-			logger.error("模板文件{}渲染输出出错：{}", f, e);
-			throw new ActionException("模板文件渲染错误。");
+		} catch (Exception e) {
+			logger.error("模板文件{}渲染输出出错", f, e);
+			throw new KnowException("模板文件渲染错误");
 		}
 	}
 }

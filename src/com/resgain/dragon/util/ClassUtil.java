@@ -1,5 +1,6 @@
 package com.resgain.dragon.util;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -116,7 +117,7 @@ public class ClassUtil
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public static Object getValue(String name, String type, Map<String, Object> context) throws Exception {
+	public static Object getValue(String name, String type, Map<String, Object> context, Annotation ans[]) throws Exception {
 
 		if (inObjectProp(name, context)) {
 			Class c = ClassUtils.getClass(type);
@@ -124,7 +125,7 @@ public class ClassUtil
 			for (Field field : ClassUtil.getAllFields(c)) {
 				String k = name + "." + field.getName();
 				Object v = context.get(k);
-				if (v == null)
+				if (v == null || v.toString().length() < 1)
 					continue;
 				setPropValue(o, field, field.getName(), v);
 			}
@@ -132,7 +133,7 @@ public class ClassUtil
 		}
 
 		Object value = context.get(name);
-		if (value == null || value.toString().trim().length() < 1)
+		if (value == null || value.toString().length() < 1)
 			value = null;
 		if ("int".equals(type)) {
 			return value == null ? 0 : Integer.valueOf(value.toString()).intValue();
@@ -152,6 +153,14 @@ public class ClassUtil
 			return value == null ? false : Boolean.valueOf(value.toString()).booleanValue();
 		} else if ("com.resgain.dragon.util.bean.UploadBean".equals(type) || "com.resgain.dragon.util.bean.UploadBean[]".equals(type)) {
 			return value == null ? false : value;
+		} else if(ans!=null && ans.length==1 && (ans[0] instanceof HtmlParameter || ans[0] instanceof JsonParameter)){ //目前只支持2个注解 FIXME 一个参数可以有多个注解
+			if(ans[0] instanceof HtmlParameter){
+				return value == null ? null : getValue(value.toString(), (HtmlParameter)ans[0]);
+			} else if(ans[0] instanceof JsonParameter){
+				return value == null ? null : JSONUtil.toObject(ClassUtils.getClass(type), (String)value);
+			} else {
+				return value;
+			}
 		} else {
 			return value == null ? null : DataConversion.convert(value, ClassUtils.getClass(type));
 		}
@@ -176,12 +185,7 @@ public class ClassUtil
         		if(field.isAnnotationPresent(HtmlParameter.class))
         		{
         			HtmlParameter hp = field.getAnnotation(HtmlParameter.class);
-					if (HtmlParameter.LEVEL.Free.equals(hp.value()))
-        				PropertyAccessor.set(obj, key, value);
-					else if (HtmlParameter.LEVEL.Normal.equals(hp.value()))
-        				PropertyAccessor.set(obj, key, Jsoup.clean(value.toString(), Whitelist.basic().addTags("h3","h4","h5","h6")));
-        			else
-        				PropertyAccessor.set(obj, key, Jsoup.clean(value.toString(), Whitelist.simpleText()));
+        			PropertyAccessor.set(obj, key, getValue(value.toString(), hp));
         		} else {
         			String v = Jsoup.clean(value.toString(), Whitelist.none());
         			PropertyAccessor.set(obj, key, v);
@@ -200,6 +204,15 @@ public class ClassUtil
         } catch (Exception e) {
             logger.warn("BEAN({})设置属性值发生错误:{}={},原因:{}", new Object[] { obj.getClass().getName(), key, value, e.getMessage() });
         }
+    }
+
+    private static String getValue(String value, HtmlParameter hp){
+		if (HtmlParameter.LEVEL.Free.equals(hp.value()))
+			return value;
+		else if (HtmlParameter.LEVEL.Normal.equals(hp.value()))
+			return Jsoup.clean(value, Whitelist.basic().addTags("h3","h4","h5","h6"));
+		else
+			return Jsoup.clean(value, Whitelist.simpleText());
     }
 
 	private static Map<String, Map<String, Field>> classFieldCache = new Hashtable<String, Map<String, Field>>();

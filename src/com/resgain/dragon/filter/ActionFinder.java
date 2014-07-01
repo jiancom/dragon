@@ -71,22 +71,22 @@ public class ActionFinder
 		String beanId = ACTION_PREFIX + name;
 		Object bean = null;
 		String methodName = "exec";
-		if (beanId.indexOf('!') > 0) {
-			String t[] = name.split("!");
-			beanId = ACTION_PREFIX + t[0];
-			methodName = t[1];
+		if (StringUtils.countMatches(beanId, ConfigUtil.getCMSplit())==1 && beanId.indexOf(ConfigUtil.getCMSplit()) > 0) { //如果有定义分割符号则以定义的分割符号区分类名和方法名，否则就用默认的方法名
+			methodName = beanId.substring(beanId.lastIndexOf(ConfigUtil.getCMSplit())+1);
+			beanId = beanId.substring(0, beanId.lastIndexOf(ConfigUtil.getCMSplit()));
 		}
 		bean = ResgainUtil.getBean(beanId);
-		if (bean == null) {
-			bean = ResgainUtil.getBean(beanId.substring(0, beanId.lastIndexOf('.')));
-			if (bean != null)
-				methodName = beanId.substring(beanId.lastIndexOf('.') + 1);
-		}
 		if (bean == null)
-			bean = ResgainUtil.getBean("action.default");
-		if (bean != null)
-			return new BeanMethod(bean, methodName);
-		return null;
+			bean = ResgainUtil.getBean(ConfigUtil.getValue("default.action", "action.default"));
+		return (bean != null)? new BeanMethod(bean, methodName): null;
+	}
+
+	public static boolean isPackage(String s){
+		for (String pack : ACTION_PACKAGE) {
+			if(Package.getPackage(pack+s)!=null)
+				return true;
+		}
+		return false;
 	}
 }
 

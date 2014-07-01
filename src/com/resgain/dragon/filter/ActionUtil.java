@@ -47,6 +47,7 @@ public class ActionUtil
 				logger.debug("新增Velocity初始属性:{}---->{}", entry.getKey(), entry.getValue());
 				Velocity.addProperty((String) entry.getKey(), (String) entry.getValue());
 			}
+			Velocity.addProperty("parser.pool.size", 100);
 			Velocity.init();
 		} catch (Exception e) {
 			logger.error("velocity初始化错误", e);

@@ -15,7 +15,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.resgain.dragon.bean.KnowException;
+import com.resgain.dragon.exception.KnowException;
 
 public class QueryBean
 {
